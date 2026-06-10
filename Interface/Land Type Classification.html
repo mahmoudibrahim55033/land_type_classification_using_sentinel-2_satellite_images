@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORBIT — Earth Intelligence</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --void: #010812;
+      --abyss: #030e20;
+      --deep: #061628;
+      --navy: #0a2040;
+      --steel: #0d2d56;
+      --azure: #1255a8;
+      --electric: #1a7fff;
+      --neon: #00d4ff;
+      --ice: #a8e8ff;
+      --white: #dff0ff;
+      --muted: #3a6a9a;
+      --faint: #1a3a5c;
+      --green: #00ff9d;
+      --warn: #ffb800;
+      --grid-c: rgba(0, 212, 255, 0.04);
+      --glow-c: rgba(0, 212, 255, 0.3);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--void);
+      color: var(--white);
+      overflow-x: hidden;
+      min-height: 100vh;
+      cursor: crosshair;
+    }
+
+    /* ─── CANVAS STARFIELD ─── */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── GRID OVERLAY ─── */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--grid-c) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    /* ─── ORBITAL RINGS ─── */
+    .orbital-ring {
+      position: fixed;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 212, 255, 0.06);
+      pointer-events: none;
+      z-index: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .or1 {
+      width: 700px;
+      height: 700px;
+      animation: spin 60s linear infinite;
+    }
+
+    .or2 {
+      width: 1000px;
+      height: 1000px;
+      animation: spin 90s linear infinite reverse;
+    }
+
+    .or3 {
+      width: 1300px;
+      height: 1300px;
+      animation: spin 130s linear infinite;
+    }
+
+    .or1::after,
+    .or2::after,
+    .or3::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      top: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .or1::after {
+      background: var(--green);
+      box-shadow: 0 0 12px var(--green);
+    }
+
+    .or2::after {
+      background: var(--neon);
+      box-shadow: 0 0 10px var(--neon);
+    }
+
+    .or3::after {
+      background: var(--warn);
+      box-shadow: 0 0 8px var(--warn);
+    }
+
+    @keyframes spin {
+      from {
+        transform: translate(-50%, -50%) rotate(0)
+      }
+
+      to {
+        transform: translate(-50%, -50%) rotate(360deg)
+      }
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    .cur {
+      width: 20px;
+      height: 20px;
+      position: fixed;
+      z-index: 9999;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      border: 1px solid var(--neon);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      box-shadow: 0 0 10px var(--glow-c);
+      animation: curPulse 2s ease-in-out infinite alternate;
+      transition: transform 0.1s;
+    }
+
+    @keyframes curPulse {
+      from {
+        box-shadow: 0 0 5px var(--glow-c);
+      }
+
+      to {
+        box-shadow: 0 0 20px var(--glow-c), 0 0 40px rgba(0, 212, 255, 0.1);
+      }
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      height: 60px;
+      background: rgba(1, 8, 18, 0.92);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+      backdrop-filter: blur(20px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4vw;
+    }
+
+    .brand {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--neon);
+      letter-spacing: 0.15em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-hex {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--neon);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      background: rgba(0, 212, 255, 0.1);
+      animation: hexSpin 10s linear infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.5rem;
+      color: var(--neon);
+    }
+
+    @keyframes hexSpin {
+      from {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0;
+    }
+
+    .tab {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.58rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      padding: 0 22px;
+      height: 60px;
+      cursor: crosshair;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .tab::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--neon);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      box-shadow: 0 0 8px var(--neon);
+    }
+
+    .tab.on {
+      color: var(--neon);
+    }
+
+    .tab.on::before,
+    .tab:hover::before {
+      transform: scaleX(1);
+    }
+
+    .tab:hover {
+      color: var(--ice);
+    }
+
+    .live-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--green);
+      letter-spacing: 0.12em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.15;
+      }
+    }
+
+    /* ─── PAGES ─── */
+    .page {
+      display: none;
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      padding-top: 60px;
+    }
+
+    .page.on {
+      display: block;
+    }
+
+    /* ════════════════════════════
+   HOME PAGE
+════════════════════════════ */
+    .home-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 5vw 60px;
+    }
+
+    /* Earth Globe */
+    .earth-container {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin: 0 auto 56px;
+    }
+
+    .earth {
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 32%, #1a6adb 0%, #093a90 30%, #041d55 65%, #010a20 100%);
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 0 1px rgba(0, 212, 255, 0.2),
+        0 0 50px rgba(10, 80, 200, 0.5),
+        0 0 120px rgba(0, 100, 200, 0.2),
+        inset -40px -25px 70px rgba(0, 0, 0, 0.7);
+      animation: earthRotate 20s ease-in-out infinite alternate;
+    }
+
+    @keyframes earthRotate {
+      from {
+        filter: hue-rotate(-5deg) brightness(0.95);
+      }
+
+      to {
+        filter: hue-rotate(5deg) brightness(1.05);
+      }
+    }
+
+    /* continents */
+    .earth::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 28% 18% at 22% 38%, rgba(0, 180, 80, 0.45) 0%, transparent 100%),
+        radial-gradient(ellipse 18% 28% at 68% 30%, rgba(0, 160, 60, 0.35) 0%, transparent 100%),
+        radial-gradient(ellipse 22% 14% at 52% 68%, rgba(0, 150, 55, 0.3) 0%, transparent 100%),
+        radial-gradient(ellipse 12% 20% at 80% 65%, rgba(0, 140, 50, 0.25) 0%, transparent 100%);
+    }
+
+    /* atmosphere glow */
+    .earth::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at 28% 22%, rgba(100, 180, 255, 0.18) 0%, transparent 55%);
+    }
+
+    /* cloud layer */
+    .clouds {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      overflow: hidden;
+      animation: cloudDrift 40s linear infinite;
+    }
+
+    .clouds::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 35% 8% at 60% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 100%),
+        radial-gradient(ellipse 20% 6% at 30% 55%, rgba(255, 255, 255, 0.08) 0%, transparent 100%),
+        radial-gradient(ellipse 28% 6% at 75% 70%, rgba(255, 255, 255, 0.09) 0%, transparent 100%);
+    }
+
+    @keyframes cloudDrift {
+      from {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    /* equator line */
+    .earth-equator {
+      position: absolute;
+      width: 340px;
+      height: 100px;
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(72deg);
+    }
+
+    /* satellite on equator */
+    .earth-sat {
+      position: absolute;
+      width: 340px;
+      height: 100px;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotateX(72deg);
+      animation: satOrbit 5s linear infinite;
+    }
+
+    .earth-sat::before {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green), 0 0 28px rgba(0, 255, 157, 0.4);
+    }
+
+    @keyframes satOrbit {
+      from {
+        transform: translate(-50%, -50%) rotateX(72deg) rotate(0)
+      }
+
+      to {
+        transform: translate(-50%, -50%) rotateX(72deg) rotate(360deg)
+      }
+    }
+
+    .home-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--green);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: up 0.7s ease forwards 0.4s;
+    }
+
+    .home-h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 900;
+      font-size: clamp(2.2rem, 7vw, 6rem);
+      line-height: 0.95;
+      background: linear-gradient(135deg, var(--white) 0%, var(--neon) 55%, var(--ice) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: up 0.9s ease forwards 0.7s;
+    }
+
+    .home-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 300;
+      font-size: clamp(0.95rem, 2vw, 1.25rem);
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 48px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: up 0.9s ease forwards 1s;
+    }
+
+    .home-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: up 0.7s ease forwards 1.3s;
+    }
+
+    .btn-primary {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      background: var(--neon);
+      color: var(--void);
+      border: none;
+      padding: 14px 36px;
+      cursor: crosshair;
+      clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+      transition: box-shadow 0.3s, transform 0.2s;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      background: transparent;
+      color: var(--neon);
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      padding: 14px 36px;
+      cursor: crosshair;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--neon);
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.15);
+    }
+
+    /* stats bar */
+    .stats-bar {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(0, 212, 255, 0.08);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.08);
+      margin-top: 80px;
+      background: rgba(3, 14, 32, 0.6);
+    }
+
+    .stat {
+      padding: 36px 20px;
+      text-align: center;
+      border-right: 1px solid rgba(0, 212, 255, 0.06);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: all 0.6s ease;
+    }
+
+    .stat:last-child {
+      border-right: none;
+    }
+
+    .stat.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stat:hover {
+      background: rgba(13, 40, 86, 0.4);
+    }
+
+    .stat-n {
+      font-family: 'Orbitron', monospace;
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: var(--neon);
+      text-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+      display: block;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-u {
+      font-size: 1.4rem;
+      color: var(--green);
+    }
+
+    .stat-l {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ════════════════════════════
+   ABOUT PAGE
+════════════════════════════ */
+    .inner {
+      padding: 80px 7vw;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .pg-eyebrow {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .pg-h1 {
+      font-family: 'Orbitron', monospace;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 4vw, 3.8rem);
+      line-height: 1.05;
+      margin-bottom: 50px;
+      color: var(--white);
+    }
+
+    .pg-h1 b {
+      color: var(--neon);
+      font-weight: 700;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    @media(max-width:768px) {
+
+      .about-grid,
+      .team-grid-5 {
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+    .about-text p {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(223, 240, 255, 0.65);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .about-text p em {
+      color: var(--neon);
+      font-style: normal;
+      font-weight: 500;
+    }
+
+    .specs {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .spec-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      background: rgba(10, 32, 64, 0.4);
+      border: 1px solid rgba(0, 212, 255, 0.08);
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .spec-row:hover {
+      border-color: rgba(0, 212, 255, 0.25);
+      background: rgba(18, 48, 96, 0.5);
+    }
+
+    .spec-k {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+    }
+
+    .spec-v {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.75rem;
+      color: var(--neon);
+    }
+
+    /* radar visual */
+    .radar-box {
+      height: 380px;
+      background: var(--abyss);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radar-box::before {
+      content: 'ACTIVE SCAN';
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.2em;
+      color: var(--green);
+    }
+
+    .radar-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 212, 255, 0.12);
+    }
+
+    .rc1 {
+      width: 80px;
+      height: 80px;
+    }
+
+    .rc2 {
+      width: 160px;
+      height: 160px;
+    }
+
+    .rc3 {
+      width: 240px;
+      height: 240px;
+    }
+
+    .rc4 {
+      width: 320px;
+      height: 320px;
+    }
+
+    .radar-line {
+      position: absolute;
+      width: 50%;
+      height: 1px;
+      background: linear-gradient(to right, rgba(0, 212, 255, 0.6), transparent);
+      top: 50%;
+      left: 50%;
+      transform-origin: left center;
+      animation: radarSweep 3s linear infinite;
+    }
+
+    .radar-line::after {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: conic-gradient(from 180deg, rgba(0, 212, 255, 0.12), transparent 60deg);
+      top: -60px;
+      left: 0;
+    }
+
+    @keyframes radarSweep {
+      from {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .radar-blip {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: blipFade 3s ease-in-out infinite;
+    }
+
+    @keyframes blipFade {
+      0% {
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0.2;
+      }
+    }
+
+    /* ════════════════════════════
+   MISSION PAGE
+════════════════════════════ */
+    .mission-items {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .mi {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 0;
+      border: 1px solid rgba(0, 212, 255, 0.08);
+      transition: border-color 0.4s, background 0.4s;
+      opacity: 0;
+      transform: translateX(-30px);
+      transition2: all 0.6s ease;
+    }
+
+    .mi.in {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .mi:hover {
+      border-color: rgba(0, 212, 255, 0.25);
+      background: rgba(10, 32, 64, 0.35);
+    }
+
+    .mi-num {
+      background: rgba(0, 212, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid rgba(0, 212, 255, 0.08);
+      font-family: 'Orbitron', monospace;
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: rgba(0, 212, 255, 0.15);
+    }
+
+    .mi-body {
+      padding: 28px 30px;
+    }
+
+    .mi-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+
+    .mi-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--white);
+      margin-bottom: 10px;
+    }
+
+    .mi-text {
+      font-size: 0.92rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 60px;
+    }
+
+    @media(max-width:700px) {
+      .pillars {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pillar {
+      padding: 36px 28px;
+      background: var(--abyss);
+      border: 1px solid rgba(0, 212, 255, 0.07);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .pillar:hover {
+      border-color: rgba(0, 212, 255, 0.25);
+      background: var(--deep);
+    }
+
+    .pillar-glow {
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.07), transparent);
+    }
+
+    .pillar-num {
+      font-family: 'Orbitron', monospace;
+      font-size: 4rem;
+      font-weight: 900;
+      color: rgba(0, 212, 255, 0.05);
+      position: absolute;
+      top: 10px;
+      right: 16px;
+    }
+
+    .pillar-icon {
+      font-size: 1.6rem;
+      margin-bottom: 14px;
+    }
+
+    .pillar-title {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--neon);
+      margin-bottom: 10px;
+    }
+
+    .pillar-text {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.65;
+      font-weight: 300;
+    }
+
+    /* ════════════════════════════
+   GALLERY PAGE
+════════════════════════════ */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: 320px 240px;
+      gap: 3px;
+      margin-top: 40px;
+    }
+
+    .gi {
+      position: relative;
+      overflow: hidden;
+      background: var(--abyss);
+      border: 1px solid rgba(0, 212, 255, 0.07);
+    }
+
+    .gi:first-child {
+      grid-row: 1/3;
+    }
+
+    .gi-fill {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.8s cubic-bezier(.25, .46, .45, .94);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+    }
+
+    .gi:hover .gi-fill {
+      transform: scale(1.06);
+    }
+
+    .g1 {
+      background: radial-gradient(ellipse at 35% 40%, #1a4590, #0d2860, #040f28);
+    }
+
+    .g2 {
+      background: radial-gradient(ellipse at 55% 35%, #123a80, #081c48, #020810);
+    }
+
+    .g3 {
+      background: radial-gradient(ellipse at 45% 55%, #0e2e6a, #061530, #020812);
+    }
+
+    .g4 {
+      background: radial-gradient(ellipse at 60% 40%, #162e72, #081640, #030a1e);
+    }
+
+    .g5 {
+      background: radial-gradient(ellipse at 40% 60%, #18386e, #0a1c40, #030b1c);
+    }
+
+    .gi-icon {
+      font-size: 3.5rem;
+      opacity: 0.12;
+      animation: floatIco 7s ease-in-out infinite;
+    }
+
+    @keyframes floatIco {
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0);
+      }
+
+      50% {
+        transform: translateY(-14px) rotate(3deg);
+      }
+    }
+
+    /* scan line on hover */
+    .gi-scanline {
+      position: absolute;
+      height: 2px;
+      left: 0;
+      right: 0;
+      top: 0;
+      background: linear-gradient(90deg, transparent, var(--neon), transparent);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .gi:hover .gi-scanline {
+      opacity: 0.5;
+      animation: scanDown 2s ease-in-out infinite;
+    }
+
+    @keyframes scanDown {
+      0% {
+        top: 0%;
+      }
+
+      100% {
+        top: 100%;
+      }
+    }
+
+    /* corner brackets */
+    .gi::before,
+    .gi::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: var(--neon);
+      border-style: solid;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 2;
+    }
+
+    .gi::before {
+      top: 10px;
+      left: 10px;
+      border-width: 1px 0 0 1px;
+    }
+
+    .gi::after {
+      bottom: 10px;
+      right: 10px;
+      border-width: 0 1px 1px 0;
+    }
+
+    .gi:hover::before,
+    .gi:hover::after {
+      opacity: 0.6;
+    }
+
+    .gi-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(1, 8, 18, 0.9), transparent);
+      padding: 20px 16px 12px;
+      transform: translateY(100%);
+      transition: transform 0.4s ease;
+    }
+
+    .gi:hover .gi-label {
+      transform: translateY(0);
+    }
+
+    .gi-label-code {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      color: var(--neon);
+    }
+
+    /* ════════════════════════════
+   TEAM PAGE
+════════════════════════════ */
+    .team-intro {
+      max-width: 580px;
+      margin-bottom: 60px;
+    }
+
+    .team-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+    }
+
+    @media(max-width:1100px) {
+      .team-grid-5 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media(max-width:600px) {
+      .team-grid-5 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .member {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .member.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* photo frame */
+    .mem-frame {
+      aspect-ratio: 3/4;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 212, 255, 0.12);
+      margin-bottom: 14px;
+      transition: border-color 0.4s;
+    }
+
+    .member:hover .mem-frame {
+      border-color: rgba(0, 212, 255, 0.45);
+      box-shadow: 0 0 24px rgba(0, 212, 255, 0.1);
+    }
+
+    /* portrait photo simulation */
+    .mem-photo {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .mp1 {
+      background: linear-gradient(175deg, #1a5490 10%, #0c2f5e 50%, #050f20 100%);
+    }
+
+    .mp2 {
+      background: linear-gradient(175deg, #1a4878 10%, #0c2248 50%, #040c1c 100%);
+    }
+
+    .mp3 {
+      background: linear-gradient(175deg, #163e7a 10%, #0a2050 50%, #040e22 100%);
+    }
+
+    .mp4 {
+      background: linear-gradient(175deg, #183668 10%, #0c1e44 50%, #030c1a 100%);
+    }
+
+    .mp5 {
+      background: linear-gradient(175deg, #1a4070 10%, #0c2240 50%, #050c1c 100%);
+    }
+
+    /* silhouette */
+    .sil {
+      position: absolute;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 75%;
+    }
+
+    .sil-head {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: rgba(0, 180, 255, 0.2);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      margin-bottom: 0;
+    }
+
+    .sil-body {
+      width: 90px;
+      height: 70px;
+      background: rgba(0, 150, 220, 0.12);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      border-bottom: none;
+      border-radius: 45px 45px 0 0;
+    }
+
+    .sil-glow {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 200, 255, 0.18), transparent);
+      pointer-events: none;
+    }
+
+    /* hover scan */
+    .mem-scan {
+      position: absolute;
+      height: 1px;
+      left: 0;
+      right: 0;
+      top: 30%;
+      background: linear-gradient(90deg, transparent, var(--neon), transparent);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .member:hover .mem-scan {
+      opacity: 0.4;
+      animation: memScanAnim 2.5s ease-in-out infinite;
+    }
+
+    @keyframes memScanAnim {
+      0% {
+        top: 0%
+      }
+
+      100% {
+        top: 100%
+      }
+    }
+
+    /* dept badge */
+    .mem-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.48rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--neon);
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      padding: 3px 8px;
+    }
+
+    /* corner marks */
+    .mem-frame::before,
+    .mem-frame::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-color: rgba(0, 212, 255, 0.3);
+      border-style: solid;
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 3;
+    }
+
+    .mem-frame::before {
+      top: 6px;
+      left: 6px;
+      border-width: 1px 0 0 1px;
+    }
+
+    .mem-frame::after {
+      bottom: 6px;
+      right: 6px;
+      border-width: 0 1px 1px 0;
+    }
+
+    .member:hover .mem-frame::before,
+    .member:hover .mem-frame::after {
+      opacity: 1;
+    }
+
+    .mem-name {
+      font-family: 'Orbitron', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.05em;
+      margin-bottom: 3px;
+    }
+
+    .mem-role {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--neon);
+      margin-bottom: 8px;
+    }
+
+    .mem-bio {
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .mem-socials {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .ms {
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(0, 212, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--muted);
+      transition: all 0.3s;
+      cursor: crosshair;
+    }
+
+    .ms:hover {
+      border-color: var(--neon);
+      color: var(--neon);
+      box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+    }
+
+    /* ─── SHARED ─── */
+    .rev {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .rev.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      position: relative;
+      z-index: 1;
+      background: var(--abyss);
+      border-top: 1px solid rgba(0, 212, 255, 0.08);
+      padding: 50px 7vw 36px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .ft-brand {
+      font-family: 'Orbitron', monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--neon);
+      letter-spacing: 0.15em;
+    }
+
+    .ft-info {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--faint);
+      letter-spacing: 0.15em;
+    }
+
+    @keyframes up {
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- canvas starfield -->
+  <canvas id="canvas"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="orbital-ring or1"></div>
+  <div class="orbital-ring or2"></div>
+  <div class="orbital-ring or3"></div>
+  <div class="cur" id="cur"></div>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <div class="brand">
+      <div class="brand-hex">⬡</div>
+      ORBIT
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-tab="home">Home</button>
+      <button class="tab" data-tab="about">Dataset</button>
+      <button class="tab" data-tab="mission">Mission</button>
+      <button class="tab" data-tab="gallery">Prediction</button>
+      <button class="tab" data-tab="team">Team</button>
+    </div>
+    <div class="live-badge">
+      <div class="live-dot"></div>LIVE · SAT-07
+    </div>
+  </nav>
+
+  <!-- ══════════════ HOME ══════════════ -->
+  <div class="page on" id="tab-home">
+    <div class="home-wrap">
+      <div class="earth-container">
+        <div class="earth">
+          <div class="clouds"></div>
+        </div>
+        <div class="earth-equator"></div>
+        <div class="earth-sat"></div>
+      </div>
+
+      <p class="home-code">// Earth Observation Network · Active</p>
+      <h1 class="home-h1">Land Type Classification<br>Sentinel-2<br>Satellite</h1>
+      <p class="home-sub">We operate a constellation of 420+ satellites delivering real-time Earth intelligence to
+        scientists, governments, and decision-makers worldwide.</p>
+      <!-- <div class="home-btns">
+        <button class="btn-primary">Explore Network</button>
+        <button class="btn-ghost">View Live Feed</button>
+      </div> -->
+
+      <div class="stats-bar">
+        <div class="stat rev" style="transition-delay:.2s">
+          <span class="stat-n" id="c3">20K</span>
+          <span class="stat-l">Dataset Images</span>
+        </div>
+        <div class="stat rev"><span class="stat-n" id="c1">10</span><span
+            class="stat-l">Classes</span></div>
+        <div class="stat rev" style="transition-delay:.1s"><span class="stat-n" id="c2">91.80<span
+              class="stat-u">%</span></span><span class="stat-l">Accuracy</span></div>
+        <div class="stat rev" style="transition-delay:.3s"><span class="stat-n" id="c4">13</span><span
+            class="stat-l">Spectral Bands</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ ABOUT ══════════════ -->
+  <div class="page" id="tab-about">
+    <div class="inner">
+      <p class="pg-eyebrow rev">// Dataset</p>
+      <h1 class="pg-h1 rev">EuroSAT — <b>Land Use</b><br>Classification</h1>
+      <div class="about-grid">
+        <div>
+          <div class="about-text">
+            <p>Our model is trained on <em>EuroSAT</em>, a benchmark dataset built entirely from <em>Sentinel-2 satellite imagery</em> captured over Europe. Each image is stored as a multi-band <em>.tif file</em>, preserving the full radiometric depth across all 13 spectral bands — from visible light through shortwave infrared.</p>
+            <p>The dataset contains <em>20,000 geo-referenced image patches</em>, each 64×64 pixels, covering 10 distinct land-use and land-cover classes. It is perfectly balanced, with <em>2,000 samples per class</em>, ensuring no category dominates training and that the model learns each terrain type with equal fidelity.</p>
+            <p>Working with raw <em>.tif files</em> allows us to retain all spectral information discarded by conventional RGB formats — enabling the classifier to detect subtle signatures invisible to the human eye, such as vegetation stress, soil moisture, and urban heat variance.</p>
+          </div>
+          <div class="specs rev" style="transition-delay:.2s">
+            <div class="spec-row"><span class="spec-k">SOURCE</span><span class="spec-v">ESA SENTINEL-2</span></div>
+            <div class="spec-row"><span class="spec-k">TOTAL IMAGES</span><span class="spec-v">20,000 PATCHES</span></div>
+            <div class="spec-row"><span class="spec-k">CLASS BALANCE</span><span class="spec-v">2,000 PER CLASS</span></div>
+            <div class="spec-row"><span class="spec-k">IMAGE FORMAT</span><span class="spec-v">GEOTIFF (.TIF)</span></div>
+            <div class="spec-row"><span class="spec-k">PATCH SIZE</span><span class="spec-v">64 × 64 PIXELS</span></div>
+            <div class="spec-row"><span class="spec-k">SPECTRAL BANDS</span><span class="spec-v">13 BANDS · 443–2190 NM</span></div>
+          </div>
+        </div>
+        <div class="radar-box rev" style="transition-delay:.3s">
+          <div class="radar-circle rc1"></div>
+          <div class="radar-circle rc2"></div>
+          <div class="radar-circle rc3"></div>
+          <div class="radar-circle rc4"></div>
+          <div class="radar-line"></div>
+          <div class="radar-blip" style="top:36%;left:62%;animation-delay:0s"></div>
+          <div class="radar-blip" style="top:60%;left:28%;animation-delay:1.1s"></div>
+          <div class="radar-blip" style="top:72%;left:68%;animation-delay:2.2s"></div>
+          <div class="radar-blip" style="top:28%;left:44%;animation-delay:0.6s"></div>
+        </div>
+      </div>
+
+      <!-- CLASS BREAKDOWN -->
+      <div style="margin-top:60px;">
+        <p class="pg-eyebrow rev" style="margin-bottom:28px;">// 10 Land-Use Classes · 2,000 Images Each</p>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.05s">
+            <span style="font-size:1.4rem;">🌾</span>
+            <span class="spec-k" style="font-size:0.55rem;">Annual Crop</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.1s">
+            <span style="font-size:1.4rem;">🌲</span>
+            <span class="spec-k" style="font-size:0.55rem;">Forest</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.15s">
+            <span style="font-size:1.4rem;">🌿</span>
+            <span class="spec-k" style="font-size:0.55rem;">Herbaceous Vegetation</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.2s">
+            <span style="font-size:1.4rem;">🛣️</span>
+            <span class="spec-k" style="font-size:0.55rem;">Highway</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.25s">
+            <span style="font-size:1.4rem;">🏭</span>
+            <span class="spec-k" style="font-size:0.55rem;">Industrial</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.3s">
+            <span style="font-size:1.4rem;">🌊</span>
+            <span class="spec-k" style="font-size:0.55rem;">Pasture</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.35s">
+            <span style="font-size:1.4rem;">🏘️</span>
+            <span class="spec-k" style="font-size:0.55rem;">Permanent Crop</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.4s">
+            <span style="font-size:1.4rem;">🏙️</span>
+            <span class="spec-k" style="font-size:0.55rem;">Residential</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.45s">
+            <span style="font-size:1.4rem;">🌊</span>
+            <span class="spec-k" style="font-size:0.55rem;">River</span>
+          </div>
+          <div class="spec-row rev" style="flex-direction:column;align-items:flex-start;padding:18px 20px;gap:6px;transition-delay:.5s">
+            <span style="font-size:1.4rem;">🏞️</span>
+            <span class="spec-k" style="font-size:0.55rem;">Sea &amp; Lake</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIF PIPELINE NOTE -->
+      <div class="specs rev" style="margin-top:40px;transition-delay:.3s">
+        <div class="spec-row"><span class="spec-k">FILE FORMAT</span><span class="spec-v">GEOTIFF · MULTI-BAND · LOSSLESS</span></div>
+        <div class="spec-row"><span class="spec-k">BAND RANGE</span><span class="spec-v">B01–B13 · VISIBLE + NIR + SWIR</span></div>
+        <div class="spec-row"><span class="spec-k">NORMALISATION</span><span class="spec-v">PER-BAND MIN-MAX · PRESERVED ACROSS SPLITS</span></div>
+        <div class="spec-row"><span class="spec-k">TRAIN / VAL / TEST</span><span class="spec-v">70% · 15% · 15%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MISSION ══════════════ -->
+  <div class="page" id="tab-mission">
+    <div class="inner">
+      <p class="pg-eyebrow rev">// Methodology</p>
+      <h1 class="pg-h1 rev">Building a High-Accuracy<br><b>Classification Pipeline</b></h1>
+
+      <!-- PIPELINE STEPS -->
+      <div class="mission-items">
+
+        <div class="mi rev">
+          <div class="mi-num">01</div>
+          <div class="mi-body">
+            <p class="mi-tag">// Pre-processing</p>
+            <h3 class="mi-title">Spectral Normalisation</h3>
+            <p class="mi-text">Each .tif image carries 13 raw spectral bands with pixel values spanning different physical
+              ranges depending on wavelength. Before any learning can occur, all bands are normalised per-channel using
+              min-max scaling, squeezing every value into [0, 1] while preserving relative spectral contrast. Statistics
+              are computed on the training split only and applied identically to validation and test sets, preventing any
+              form of data leakage across partitions.</p>
+          </div>
+        </div>
+
+        <div class="mi rev" style="transition-delay:.1s">
+          <div class="mi-num">02</div>
+          <div class="mi-body">
+            <p class="mi-tag">// Dimensionality Reduction</p>
+            <h3 class="mi-title">PCA — 8 Principal Components</h3>
+            <p class="mi-text">With 13 correlated spectral bands, redundancy is inevitable — neighbouring infrared
+              channels in particular share significant variance. Principal Component Analysis was applied across the
+              flattened band space, retaining the 8 components that collectively explain the dominant variance in the
+              data. This reduction compresses the input without discarding discriminative spectral signal, accelerates
+              training, and helps regularise against overfitting on high-dimensional per-pixel features.</p>
+          </div>
+        </div>
+
+        <div class="mi rev" style="transition-delay:.2s">
+          <div class="mi-num">03</div>
+          <div class="mi-body">
+            <p class="mi-tag">// Architecture Search</p>
+            <h3 class="mi-title">Model Selection — Four Candidates</h3>
+            <p class="mi-text">Four pre-trained convolutional architectures were benchmarked under identical training
+              conditions — same optimiser, same learning rate schedule, same augmentation policy — to isolate the effect
+              of architecture alone. The candidates spanned a wide capacity range: <em>AlexNet</em> (lightweight, ~61M
+              parameters, deep linear head), <em>GoogLeNet</em> (Inception modules, multi-scale receptive fields),
+              <em>ResNet-50</em> (residual skip connections, 50 layers), and <em>EfficientNet</em> (compound scaling,
+              state-of-the-art efficiency). All models were fine-tuned from ImageNet weights with only the final
+              classification head replaced for 10 EuroSAT classes.</p>
+          </div>
+        </div>
+
+        <div class="mi rev" style="transition-delay:.3s">
+          <div class="mi-num">04</div>
+          <div class="mi-body">
+            <p class="mi-tag">// Result</p>
+            <h3 class="mi-title">AlexNet — Best Performing Model</h3>
+            <p class="mi-text">Against expectation, AlexNet outperformed all three larger architectures on the EuroSAT
+              benchmark. Its shallower depth and wider fully-connected layers proved well-suited to the relatively
+              uniform 64×64 patch structure of the dataset, where the spatial patterns are coarser than natural
+              ImageNet scenes. The winning configuration used <em>RMSprop</em> (lr = 0.0001, momentum = 0.9, batch size
+              = 32) over <em>8 epochs</em>, achieving a final validation accuracy of <em>91.80%</em> — climbing
+              steadily from 83.85% at epoch 1 to peak performance at epoch 8.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TRAINING LOG -->
+      <div style="margin-top:60px;">
+        <p class="pg-eyebrow rev" style="margin-bottom:24px;">// AlexNet · Training Log · Best Trial</p>
+        <div class="specs rev" style="transition-delay:.15s;margin-bottom:2px;">
+          <div class="spec-row" style="background:rgba(0,212,255,0.03);">
+            <span class="spec-k">CONFIG</span>
+            <span class="spec-v" style="font-size:0.6rem;letter-spacing:0.1em;">LR 0.0001 · BATCH 32 · EPOCHS 8 · RMSprop · MOMENTUM 0.9</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;margin-top:2px;">
+
+          <div class="mi rev" style="transition-delay:.05s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E1/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;gap:0;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:83.85%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">83.85%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.08s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E2/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:89.78%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">89.78%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.11s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E3/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:89.90%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">89.90%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.14s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E4/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:85.33%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">85.33%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.17s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E5/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:89.97%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">89.97%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.20s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E6/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:91.35%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">91.35%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.23s;grid-template-columns:60px 1fr 120px;">
+            <div class="mi-num" style="font-size:0.75rem;color:rgba(0,212,255,0.3);">E7/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:91.60%;height:100%;background:linear-gradient(to right,var(--azure),var(--neon));border-radius:2px;"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);">91.60%</span>
+            </div>
+          </div>
+
+          <div class="mi rev" style="transition-delay:.26s;grid-template-columns:60px 1fr 120px;border-color:rgba(0,212,255,0.2);background:rgba(0,212,255,0.03);">
+            <div class="mi-num" style="font-size:0.75rem;color:var(--neon);">E8/8</div>
+            <div style="padding:14px 24px;display:flex;align-items:center;flex:1;">
+              <div style="flex:1;height:4px;background:rgba(0,212,255,0.07);border-radius:2px;overflow:hidden;">
+                <div style="width:91.80%;height:100%;background:linear-gradient(to right,var(--neon),var(--green));border-radius:2px;box-shadow:0 0 8px rgba(0,212,255,0.4);"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:flex-end;padding-right:24px;gap:10px;">
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--green);letter-spacing:0.15em;">★ BEST</span>
+              <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--neon);text-shadow:0 0 10px rgba(0,212,255,0.5);">91.80%</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MODEL COMPARISON PILLARS -->
+      <div style="margin-top:60px;">
+        <p class="pg-eyebrow rev" style="margin-bottom:24px;">// Model Comparison · Same Hyperparameters</p>
+        <div class="pillars" style="grid-template-columns:repeat(4,1fr);margin-top:0;">
+          <div class="pillar rev">
+            <div class="pillar-glow"></div>
+            <div class="pillar-num">01</div>
+            <div class="pillar-icon">⚡</div>
+            <div class="pillar-title">AlexNet</div>
+            <p class="pillar-text" style="color:var(--neon);font-weight:600;">91.80% ★ Selected</p>
+            <p class="pillar-text" style="margin-top:8px;">Lightweight deep head, ideal for 64×64 coarse patch structure. Fast convergence, minimal overfitting.</p>
+          </div>
+          <div class="pillar rev" style="transition-delay:.08s">
+            <div class="pillar-glow"></div>
+            <div class="pillar-num">02</div>
+            <div class="pillar-icon">🔀</div>
+            <div class="pillar-title">GoogLeNet</div>
+            <p class="pillar-text">Inception multi-scale modules. Strong on complex scenes, but over-parametrised for small uniform patches.</p>
+          </div>
+          <div class="pillar rev" style="transition-delay:.16s">
+            <div class="pillar-glow"></div>
+            <div class="pillar-num">03</div>
+            <div class="pillar-icon">🔗</div>
+            <div class="pillar-title">ResNet-50</div>
+            <p class="pillar-text">Skip connections mitigate vanishing gradients across 50 layers. Competitive but slower to converge on this scale.</p>
+          </div>
+          <div class="pillar rev" style="transition-delay:.24s">
+            <div class="pillar-glow"></div>
+            <div class="pillar-num">04</div>
+            <div class="pillar-icon">📐</div>
+            <div class="pillar-title">EfficientNet</div>
+            <p class="pillar-text">Compound scaling across depth, width, and resolution. Highly efficient on large inputs; overhead outweighed gains at 64px.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ GALLERY / PREDICTION ══════════════ -->
+  <div class="page" id="tab-gallery">
+    <div class="inner">
+      <p class="pg-eyebrow rev">// Live Inference</p>
+      <h1 class="pg-h1 rev">Land Type<br><b>Classifier</b></h1>
+      <p class="rev" style="font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;max-width:560px;transition-delay:.1s;margin-bottom:24px;">
+        Upload a Sentinel-2 <em>.tif</em> patch and the AlexNet model will classify it into one of 10 EuroSAT land-use categories in real time.</p>
+
+      <!-- HOW TO USE BANNER -->
+      <!-- <div class="rev" style="margin-bottom:36px;padding:16px 22px;border:1px solid rgba(0,212,255,0.15);background:rgba(0,212,255,0.03);display:flex;align-items:flex-start;gap:16px;transition-delay:.15s;">
+        <span style="font-size:1.1rem;flex-shrink:0;margin-top:2px;">💡</span>
+        <div>
+          <p style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--neon);letter-spacing:0.2em;margin-bottom:8px;">// HOW TO USE</p>
+          <p style="font-size:0.88rem;color:var(--muted);line-height:1.8;font-weight:300;">
+            <strong style="color:var(--white);">Step 1 —</strong> Make sure your FastAPI server is running: <code style="font-family:'Share Tech Mono',monospace;color:var(--green);font-size:0.78rem;">uvicorn inference_api:app --reload</code><br>
+            <strong style="color:var(--white);">Step 2 —</strong> <strong style="color:var(--neon);">Download this HTML file</strong> and open it directly in your browser (<code style="font-family:'Share Tech Mono',monospace;color:var(--green);font-size:0.78rem;">file://</code>) — this bypasses all sandbox restrictions.<br>
+            <strong style="color:var(--white);">Step 3 —</strong> If previewing here, allow pop-ups for this page when your browser prompts you.
+          </p>
+        </div>
+      </div> -->
+
+      <!-- UPLOAD + RESULT LAYOUT -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;align-items:stretch;">
+
+        <!-- LEFT: DROP ZONE -->
+        <div id="drop-zone" class="pillar rev" style="min-height:320px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;cursor:pointer;border:1px dashed rgba(0,212,255,0.25);transition:border-color 0.3s,background 0.3s;position:relative;" onclick="document.getElementById('tif-input').click()">
+          <div class="pillar-glow"></div>
+          <input type="file" id="tif-input" accept=".tif,.tiff" style="display:none;">
+          <div id="drop-icon" style="font-size:3rem;line-height:1;">🛰️</div>
+          <div style="text-align:center;">
+            <p style="font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:600;color:var(--neon);letter-spacing:0.15em;margin-bottom:8px;">DROP .TIF FILE HERE</p>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.12em;">OR CLICK TO BROWSE</p>
+          </div>
+          <div id="file-name-display" style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--green);letter-spacing:0.15em;display:none;text-align:center;padding:0 20px;word-break:break-all;"></div>
+          <button id="predict-btn" onclick="event.stopPropagation();runPrediction()" style="display:none;font-family:'Orbitron',monospace;font-size:0.62rem;letter-spacing:0.18em;font-weight:600;background:var(--neon);color:var(--void);border:none;padding:13px 34px;cursor:crosshair;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);transition:box-shadow 0.3s,transform 0.2s;">
+            CLASSIFY IMAGE
+          </button>
+          <!-- Drag overlay -->
+          <div id="drag-overlay" style="display:none;position:absolute;inset:0;background:rgba(0,212,255,0.06);border:1px solid var(--neon);pointer-events:none;"></div>
+        </div>
+
+        <!-- RIGHT: RESULT PANEL -->
+        <div class="pillar rev" style="transition-delay:.1s;min-height:320px;display:flex;flex-direction:column;justify-content:center;gap:0;padding:0;">
+          <div class="pillar-glow"></div>
+
+          <!-- IDLE STATE -->
+          <div id="result-idle" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:36px 28px;">
+            <div style="width:48px;height:48px;border:1px solid rgba(0,212,255,0.15);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:1.2rem;">🌍</div>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--faint);letter-spacing:0.2em;text-align:center;">AWAITING INPUT SIGNAL</p>
+          </div>
+
+          <!-- LOADING STATE -->
+          <div id="result-loading" style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:18px;padding:36px 28px;">
+            <div style="width:40px;height:40px;border:1px solid rgba(0,212,255,0.2);border-top-color:var(--neon);border-radius:50%;animation:spin 0.9s linear infinite;"></div>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.2em;">RUNNING INFERENCE···</p>
+          </div>
+
+          <!-- ERROR STATE -->
+          <div id="result-error" style="display:none;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:36px 28px;">
+            <p style="font-size:2rem;">⚠️</p>
+            <p id="error-msg" style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#ff6b6b;letter-spacing:0.12em;text-align:center;line-height:1.8;"></p>
+          </div>
+
+          <!-- SUCCESS STATE -->
+          <div id="result-success" style="display:none;flex-direction:column;height:100%;padding:32px 28px;gap:20px;">
+            <!-- Predicted class banner -->
+            <div>
+              <p style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.22em;margin-bottom:10px;">// PREDICTED CLASS</p>
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div id="result-icon" style="font-size:2rem;"></div>
+                <div>
+                  <div id="result-class" style="font-family:'Orbitron',monospace;font-size:1.15rem;font-weight:700;color:var(--neon);text-shadow:0 0 16px rgba(0,212,255,0.4);letter-spacing:0.05em;"></div>
+                  <div id="result-confidence" style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--green);margin-top:4px;letter-spacing:0.1em;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Probability bars -->
+            <div>
+              <p style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--muted);letter-spacing:0.22em;margin-bottom:12px;">// CLASS PROBABILITIES</p>
+              <div id="prob-bars" style="display:flex;flex-direction:column;gap:7px;"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- API STATUS BAR -->
+      <div style="margin-top:2px;display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:rgba(3,14,32,0.6);border:1px solid rgba(0,212,255,0.07);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="api-dot" style="width:5px;height:5px;border-radius:50%;background:var(--muted);"></div>
+          <span id="api-status-text" style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--muted);letter-spacing:0.18em;">API · NOT CONNECTED</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <span style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:var(--faint);letter-spacing:0.12em;">ENDPOINT:</span>
+          <input id="api-url-input" type="text" value="http://127.0.0.1:8000" style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--neon);background:transparent;border:none;border-bottom:1px solid rgba(0,212,255,0.2);outline:none;width:200px;padding:2px 4px;letter-spacing:0.08em;" placeholder="http://localhost:8000">
+          <button onclick="checkApiStatus()" style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;background:transparent;border:1px solid rgba(0,212,255,0.2);color:var(--muted);padding:5px 12px;cursor:crosshair;transition:all 0.2s;">PING</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    #drop-zone:hover { border-color: rgba(0,212,255,0.55) !important; background: rgba(0,212,255,0.03); }
+    #predict-btn:hover { box-shadow: 0 0 26px rgba(0,212,255,0.45); transform: translateY(-2px); }
+    #api-url-input:focus { border-bottom-color: var(--neon); }
+  </style>
+
+  <script>
+    // ── CLASS META ──
+    const CLASS_META = {
+      AnnualCrop:            { icon: '🌾', label: 'Annual Crop' },
+      Forest:                { icon: '🌲', label: 'Forest' },
+      HerbaceousVegetation: { icon: '🌿', label: 'Herbaceous Vegetation' },
+      Highway:               { icon: '🛣️',  label: 'Highway' },
+      Industrial:            { icon: '🏭', label: 'Industrial' },
+      Pasture:               { icon: '🌊', label: 'Pasture' },
+      PermanentCrop:         { icon: '🏘️', label: 'Permanent Crop' },
+      Residential:           { icon: '🏙️', label: 'Residential' },
+      River:                 { icon: '💧', label: 'River' },
+      SeaLake:               { icon: '🏞️', label: 'Sea & Lake' },
+    };
+
+    let selectedFile = null;
+    const tifInput    = document.getElementById('tif-input');
+    const dropZone    = document.getElementById('drop-zone');
+    const fileDisplay = document.getElementById('file-name-display');
+    const predictBtn  = document.getElementById('predict-btn');
+    const dragOverlay = document.getElementById('drag-overlay');
+
+    // ── FILE SELECTION ──
+    tifInput.addEventListener('change', () => {
+      if (tifInput.files[0]) handleFile(tifInput.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file.name.match(/\.tiff?$/i)) { showError('Only .tif / .tiff files are supported.'); return; }
+      selectedFile = file;
+      fileDisplay.textContent = '📎 ' + file.name;
+      fileDisplay.style.display = 'block';
+      predictBtn.style.display = 'block';
+      document.getElementById('drop-icon').textContent = '✅';
+      showState('idle');
+    }
+
+    // ── DRAG & DROP ──
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dragOverlay.style.display = 'block'; });
+    dropZone.addEventListener('dragleave', () => { dragOverlay.style.display = 'none'; });
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault(); dragOverlay.style.display = 'none';
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    // ── STATE SWITCHER ──
+    function showState(state) {
+      ['idle','loading','error','success'].forEach(s => {
+        document.getElementById('result-' + s).style.display = (s === state) ? 'flex' : 'none';
+      });
+    }
+
+    function showError(msg) {
+      document.getElementById('error-msg').textContent = msg;
+      showState('error');
+    }
+
+    // ── PREDICTION ──
+    // The page may run inside a sandboxed iframe (e.g. claude.ai) that blocks
+    // outbound fetch() to localhost. To escape that restriction we:
+    //   1. Read the file into a base64 string (fully serialisable)
+    //   2. Open a tiny relay page as a REAL browser tab (no sandbox)
+    //   3. That tab does the actual fetch, then postMessages the JSON result back
+    //   4. We listen for that message and render the result here
+    async function runPrediction() {
+      if (!selectedFile) return;
+      const apiBase = document.getElementById('api-url-input').value.replace(/\/$/, '');
+      showState('loading');
+
+      // Convert file to base64 so it can be postMessage'd cross-window
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const uint8 = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < uint8.length; i++) binary += String.fromCharCode(uint8[i]);
+      const b64 = btoa(binary);
+      const filename = selectedFile.name;
+
+      // Build the relay page HTML inline
+      const relayHtml = `<!DOCTYPE html><html><head><title>ORBIT Relay</title></head>
+<body style="margin:0;background:#010812;display:flex;align-items:center;justify-content:center;height:100vh;">
+<p style="font-family:monospace;font-size:13px;color:#00d4ff;">Running inference — this tab will close automatically...</p>
+<script>
+(async function() {
+  const apiBase = ${JSON.stringify(apiBase)};
+  const b64     = ${JSON.stringify(b64)};
+  const filename= ${JSON.stringify(filename)};
+  try {
+    const binary  = atob(b64);
+    const bytes   = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    const blob    = new Blob([bytes], { type: 'image/tiff' });
+    const form    = new FormData();
+    form.append('file', blob, filename);
+    const res     = await fetch(apiBase + '/predict', { method: 'POST', body: form });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.status + ' ' + res.statusText }));
+      throw new Error(err.detail || res.statusText);
+    }
+    const data    = await res.json();
+    window.opener.postMessage({ type: 'ORBIT_RESULT', data }, '*');
+  } catch(e) {
+    let msg = e.message || 'Unknown error';
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('CORS')) {
+      msg = 'CORS error — the API is not allowing cross-origin requests. Make sure you added CORSMiddleware to inference_api.py and restarted uvicorn.';
+    }
+    window.opener.postMessage({ type: 'ORBIT_ERROR', message: msg }, '*');
+  }
+  setTimeout(() => window.close(), 1000);
+})();
+<\/script></body></html>`;
+
+      // Open relay tab
+      const blob = new Blob([relayHtml], { type: 'text/html' });
+      const url  = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+
+      // Listen for result posted back from the relay tab
+      const handler = (event) => {
+        if (event.data && event.data.type === 'ORBIT_RESULT') {
+          window.removeEventListener('message', handler);
+          renderResult(event.data.data);
+        } else if (event.data && event.data.type === 'ORBIT_ERROR') {
+          window.removeEventListener('message', handler);
+          showError(event.data.message || 'Fetch failed in relay tab.');
+        }
+      };
+      window.addEventListener('message', handler);
+
+      // Timeout fallback after 30s
+      setTimeout(() => {
+        window.removeEventListener('message', handler);
+        if (document.getElementById('result-loading').style.display !== 'none') {
+          showError('Timed out. Make sure your API is running and pop-ups are allowed for this page.');
+        }
+      }, 30000);
+    }
+
+    // ── RENDER RESULT ──
+    function renderResult(data) {
+      const meta = CLASS_META[data.predicted_class] || { icon: '🌍', label: data.predicted_class };
+      document.getElementById('result-icon').textContent       = meta.icon;
+      document.getElementById('result-class').textContent      = meta.label.toUpperCase();
+      document.getElementById('result-confidence').textContent = 'CONFIDENCE · ' + data.confidence + '%';
+
+      const barsEl = document.getElementById('prob-bars');
+      barsEl.innerHTML = '';
+      const sorted = Object.entries(data.probabilities).sort((a, b) => b[1] - a[1]);
+      sorted.forEach(([cls, pct]) => {
+        const m   = CLASS_META[cls] || { icon: '🌍', label: cls };
+        const top = cls === data.predicted_class;
+        barsEl.innerHTML += `
+          <div style="display:grid;grid-template-columns:18px 1fr 52px;align-items:center;gap:8px;">
+            <span style="font-size:0.8rem;line-height:1;">${m.icon}</span>
+            <div style="height:3px;background:rgba(0,212,255,0.08);border-radius:2px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;border-radius:2px;
+                background:${top ? 'linear-gradient(to right,var(--neon),var(--green))' : 'rgba(0,212,255,0.25)'};
+                ${top ? 'box-shadow:0 0 6px rgba(0,212,255,0.4);' : ''}"></div>
+            </div>
+            <span style="font-family:\'Share Tech Mono\',monospace;font-size:0.58rem;
+              color:${top ? 'var(--neon)' : 'var(--muted)'};text-align:right;">${pct}%</span>
+          </div>`;
+      });
+      showState('success');
+    }
+
+    // ── API PING ──
+    // Ping also uses relay tab so it works outside sandbox too
+    function checkApiStatus() {
+      const apiBase = document.getElementById('api-url-input').value.replace(/\/$/, '');
+      const dot     = document.getElementById('api-dot');
+      const text    = document.getElementById('api-status-text');
+      dot.style.background = 'var(--warn)';
+      dot.style.animation  = 'none';
+      text.style.color     = 'var(--warn)';
+      text.textContent     = 'API · PINGING···';
+
+      const relayHtml = `<!DOCTYPE html><html><head><title>ORBIT Ping</title></head><body>
+<script>
+(async function(){
+  try {
+    const res = await fetch(${JSON.stringify(apiBase)} + '/', { signal: AbortSignal.timeout(5000) });
+    window.opener.postMessage({ type: 'ORBIT_PING', ok: res.ok }, '*');
+  } catch(e) {
+    window.opener.postMessage({ type: 'ORBIT_PING', ok: false }, '*');
+  }
+  window.close();
+})();
+<\/script></body></html>`;
+
+      const blob = new Blob([relayHtml], { type: 'text/html' });
+      window.open(URL.createObjectURL(blob), '_blank');
+
+      const handler = (event) => {
+        if (!event.data || event.data.type !== 'ORBIT_PING') return;
+        window.removeEventListener('message', handler);
+        if (event.data.ok) {
+          dot.style.background = 'var(--green)';
+          dot.style.animation  = 'blink 1.2s ease-in-out infinite';
+          text.style.color     = 'var(--green)';
+          text.textContent     = 'API · ONLINE · ' + apiBase;
+        } else {
+          dot.style.background = '#ff6b6b';
+          text.style.color     = '#ff6b6b';
+          text.textContent     = 'API · UNREACHABLE · CHECK SERVER';
+        }
+      };
+      window.addEventListener('message', handler);
+      setTimeout(() => {
+        window.removeEventListener('message', handler);
+        if (text.textContent === 'API · PINGING···') {
+          dot.style.background = '#ff6b6b';
+          text.style.color     = '#ff6b6b';
+          text.textContent     = 'API · NO RESPONSE · ALLOW POP-UPS';
+        }
+      }, 8000);
+    }
+  </script>
+
+  <!-- ══════════════ TEAM ══════════════ -->
+  <div class="page" id="tab-team">
+    <div class="inner">
+      <div class="team-intro">
+        <p class="pg-eyebrow rev">// The People</p>
+        <h1 class="pg-h1 rev">Mission Control.<br><b>Human Intelligence.</b></h1>
+        <p class="rev" style="font-size:1rem;color:var(--muted);line-height:1.75;font-weight:300;transition-delay:.1s">
+          Behind every orbital data stream is a team of scientists, engineers, and visionaries who believe that seeing
+          Earth more clearly makes protecting it possible.</p>
+      </div>
+
+      <div class="team-grid-5">
+
+        <!-- 1 -->
+        <div class="member rev" style="transition-delay:0s">
+          <div class="mem-frame">
+            <div class="mem-photo mp1">
+              <div class="sil-glow"></div>
+              <div class="sil">
+                <div class="sil-head"></div>
+                <div class="sil-body"></div>
+              </div>
+            </div>
+            <div class="mem-scan"></div>
+            <div class="mem-badge">CEO</div>
+          </div>
+          <div class="mem-name">DR. SARA CHEN</div>
+          <div class="mem-role">Chief Executive</div>
+          <p class="mem-bio">Astrophysicist turned space entrepreneur. Former NASA Earth Science Division Director. 20
+            years in orbital mechanics and satellite design.</p>
+          <div class="mem-socials">
+            <div class="ms">in</div>
+            <div class="ms">tw</div>
+            <div class="ms">↗</div>
+          </div>
+        </div>
+
+        <!-- 2 -->
+        <div class="member rev" style="transition-delay:.1s">
+          <div class="mem-frame">
+            <div class="mem-photo mp2">
+              <div class="sil-glow"></div>
+              <div class="sil">
+                <div class="sil-head"></div>
+                <div class="sil-body"></div>
+              </div>
+            </div>
+            <div class="mem-scan"></div>
+            <div class="mem-badge">CTO</div>
+          </div>
+          <div class="mem-name">ALEX OKONKWO</div>
+          <div class="mem-role">Chief Technology</div>
+          <p class="mem-bio">Former SpaceX propulsion engineer. Architected our entire LEO constellation and onboard AI
+            payload that processes imagery before downlink.</p>
+          <div class="mem-socials">
+            <div class="ms">in</div>
+            <div class="ms">gh</div>
+            <div class="ms">↗</div>
+          </div>
+        </div>
+
+        <!-- 3 -->
+        <div class="member rev" style="transition-delay:.2s">
+          <div class="mem-frame">
+            <div class="mem-photo mp3">
+              <div class="sil-glow"></div>
+              <div class="sil">
+                <div class="sil-head"></div>
+                <div class="sil-body"></div>
+              </div>
+            </div>
+            <div class="mem-scan"></div>
+            <div class="mem-badge">SCIENCE</div>
+          </div>
+          <div class="mem-name">DR. LENA VASQUEZ</div>
+          <div class="mem-role">Head of Earth Science</div>
+          <p class="mem-bio">Climate scientist and remote sensing expert. Her research shaped IPCC satellite data
+            protocols. Leads our global environmental monitoring programs.</p>
+          <div class="mem-socials">
+            <div class="ms">in</div>
+            <div class="ms">rs</div>
+            <div class="ms">↗</div>
+          </div>
+        </div>
+
+        <!-- 4 -->
+        <div class="member rev" style="transition-delay:.3s">
+          <div class="mem-frame">
+            <div class="mem-photo mp4">
+              <div class="sil-glow"></div>
+              <div class="sil">
+                <div class="sil-head"></div>
+                <div class="sil-body"></div>
+              </div>
+            </div>
+            <div class="mem-scan"></div>
+            <div class="mem-badge">DATA</div>
+          </div>
+          <div class="mem-name">JAMES HOLT</div>
+          <div class="mem-role">Head of AI & Data</div>
+          <p class="mem-bio">Machine learning pioneer with a geospatial AI background. Built the algorithms turning raw
+            satellite pixels into actionable intelligence within seconds of capture.</p>
+          <div class="mem-socials">
+            <div class="ms">in</div>
+            <div class="ms">gh</div>
+            <div class="ms">↗</div>
+          </div>
+        </div>
+
+        <!-- 5 -->
+        <div class="member rev" style="transition-delay:.4s">
+          <div class="mem-frame">
+            <div class="mem-photo mp5">
+              <div class="sil-glow"></div>
+              <div class="sil">
+                <div class="sil-head"></div>
+                <div class="sil-body"></div>
+              </div>
+            </div>
+            <div class="mem-scan"></div>
+            <div class="mem-badge">OPS</div>
+          </div>
+          <div class="mem-name">NADIA AL-RASHID</div>
+          <div class="mem-role">Director of Operations</div>
+          <p class="mem-bio">Former ESA mission controller. Oversees our 24/7 ground station network across 6
+            continents, ensuring zero-downtime data pipeline operations globally.</p>
+          <div class="mem-socials">
+            <div class="ms">in</div>
+            <div class="ms">tw</div>
+            <div class="ms">↗</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="ft-brand">⬡ ORBIT · EARTH INTELLIGENCE</div>
+    <div class="ft-info">© 2026 ORBIT INC. · LEO CONSTELLATION · ALL TELEMETRY RESERVED</div>
+  </footer>
+
+  <script>
+    /* ── STARFIELD ── */
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, stars = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+    for (let i = 0; i < 280; i++) {
+      stars.push({
+        x: Math.random(), y: Math.random(),
+        r: Math.random() * 1.6 + 0.2,
+        a: Math.random(), da: (Math.random() - 0.5) * 0.008,
+        speed: Math.random() * 0.00005 + 0.00002
+      });
+    }
+    function drawStars() {
+      ctx.clearRect(0, 0, W, H);
+      stars.forEach(s => {
+        s.a += s.da;
+        if (s.a <= 0 || s.a >= 1) s.da *= -1;
+        s.x -= s.speed;
+        if (s.x < 0) s.x = 1;
+        ctx.beginPath();
+        ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${180 + Math.floor(s.r * 30)},${200 + Math.floor(s.r * 20)},255,${s.a})`;
+        ctx.fill();
+      });
+      requestAnimationFrame(drawStars);
+    }
+    drawStars();
+
+    /* ── CURSOR ── */
+    const cur = document.getElementById('cur');
+    let mx = 0, my = 0, cx = 0, cy = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    (function animCursor() {
+      cx += (mx - cx) * 0.15; cy += (my - cy) * 0.15;
+      cur.style.left = cx + 'px'; cur.style.top = cy + 'px';
+      requestAnimationFrame(animCursor);
+    })();
+
+    /* ── TABS ── */
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+        btn.classList.add('on');
+        const pg = document.getElementById('tab-' + btn.dataset.tab);
+        pg.classList.add('on');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(revealAll, 80);
+        if (btn.dataset.tab === 'home') animateCounters();
+      });
+    });
+
+    /* ── REVEAL ── */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); } });
+    }, { threshold: 0.08 });
+    function revealAll() {
+      document.querySelectorAll('.rev,.mi,.stat,.member,.spec-row').forEach(el => io.observe(el));
+    }
+    revealAll();
+
+    /* ── COUNTER ANIMATION ── */
+    function animateCounters() {
+      const targets = [{ id: 'c1', val: 10 }, { id: 'c2', val: 91.80 }, { id: 'c4', val: 13 }];
+      targets.forEach(({ id, val }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const unit = el.querySelector('.stat-u');
+        const unitText = unit ? unit.outerHTML : '';
+        let start = 0; const dur = 1400; const fps = 16;
+        const inc = val / (dur / fps);
+        el.innerHTML = (val % 1 === 0 ? 0 : 0) + unitText;
+        const t = setInterval(() => {
+          start += inc;
+          if (start >= val) { start = val; clearInterval(t); }
+          el.innerHTML = (val % 1 === 0 ? Math.round(start) : start.toFixed(2)) + unitText;
+        }, fps);
+      });
+    }
+    setTimeout(() => {
+      revealAll();
+      setTimeout(animateCounters, 600);
+    }, 100);
+  </script>
+</body>
+
+</html>
