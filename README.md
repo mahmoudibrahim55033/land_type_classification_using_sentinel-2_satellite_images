@@ -158,6 +158,6 @@ Then open `Interface/Land Type Classification.html` in your browser, set the end
 
 Made with ❤️ for Remote Sensing & Deep Learning
 
-**Sohaila Mostafa** — [GitHub @SohailaMMostafa](https://github.com/SohailaMMostafa)
+**Mahmoud Ibrahim** — [GitHub @mahmoudibrahim55033](https://github.com/mahmoudibrahim55033)
 
 ⭐ Star the repo if you found it useful!
